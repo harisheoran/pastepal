@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-// regular go function
-func rootHandler(w http.ResponseWriter, req *http.Request) {
+func (app *application) rootHandler(w http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/" {
 		http.NotFound(w, req)
 		return
@@ -23,19 +21,19 @@ func rootHandler(w http.ResponseWriter, req *http.Request) {
 
 	temp, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 
 	err = temp.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
 	}
 }
 
-func homeHandler(w http.ResponseWriter, req *http.Request) {
+func (app *application) homeHandler(w http.ResponseWriter, req *http.Request) {
 	id, err := strconv.Atoi(req.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, req)
@@ -45,7 +43,7 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Home"))
 }
 
-func createHandler(w http.ResponseWriter, req *http.Request) {
+func (app *application) createHandler(w http.ResponseWriter, req *http.Request) {
 
 	if req.Method != "POST" {
 		w.Header().Set("Allow", "POST")
